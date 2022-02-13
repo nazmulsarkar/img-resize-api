@@ -13,10 +13,8 @@ import { ConfigService } from '@nestjs/config';
 import { StorageService } from './../storage/storage.service';
 import { FilterFileDTO, QueryFileDTO } from './dto/filter-file.dto';
 import { File } from '../entities/file.entity';
-import { UploadFileDTO } from '../storage/dto/upload-file.dto';
 import { FileType } from '../common/enums/file-type.enum';
 import { CreateFileDTO } from './dto/create-file.dto';
-import * as fs from 'fs';
 
 @Injectable()
 export class FileService {
