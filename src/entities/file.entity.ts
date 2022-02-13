@@ -3,7 +3,8 @@ import { Document, Types } from 'mongoose';
 import { FileType } from '../common/enums/file-type.enum';
 
 @Schema({
-  timestamps: true, toJSON: {
+  timestamps: true,
+  toJSON: {
     getters: true,
     virtuals: true,
   },
@@ -22,7 +23,6 @@ export class File {
   fileUrl: string;
 
   _id?: Types.ObjectId;
-  id?: Types.ObjectId;
 }
 
 export type FileDocument = File & Document;
