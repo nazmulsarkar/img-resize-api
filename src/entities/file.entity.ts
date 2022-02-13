@@ -1,11 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { FileType } from './enums/file-type.enum';
+import { FileType } from '../common/enums/file-type.enum';
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true, toJSON: {
+    getters: true,
+    virtuals: true,
+  },
+})
 export class File {
-  _id?: Types.ObjectId;
-
   @Prop({ required: true })
   fileKey: string;
 
@@ -17,6 +20,9 @@ export class File {
 
   @Prop()
   fileUrl: string;
+
+  _id?: Types.ObjectId;
+  id?: Types.ObjectId;
 }
 
 export type FileDocument = File & Document;

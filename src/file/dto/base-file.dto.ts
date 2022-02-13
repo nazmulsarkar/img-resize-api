@@ -1,5 +1,5 @@
 import { IsEnum, IsString } from 'class-validator';
-import { FileType } from '../../entities/enums/file-type.enum';
+import { FileType } from '../../common/enums/file-type.enum';
 
 export class BaseFileDTO {
   @IsString()
