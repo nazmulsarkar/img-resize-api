@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StorageModule } from '../storage/storage.module';
-import { FileSchema } from '../entities/file.entity';
+import { File, FileSchema } from '../entities/file.entity';
 import { FileService } from './file.service';
 
 @Module({
