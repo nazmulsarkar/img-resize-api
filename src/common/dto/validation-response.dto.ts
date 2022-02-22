@@ -1,6 +1,6 @@
 import { IsArray, IsBoolean } from 'class-validator';
 
-export class ValidationResponseDTO {
+export class ValidationResponse {
   @IsBoolean()
   isValid: boolean;
 
