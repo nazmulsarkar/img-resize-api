@@ -1,5 +1,5 @@
 import { IntersectionType, PartialType } from '@nestjs/mapped-types';
-import { PaginationDto } from '../../common/dto/pagination.dto';
+import { PaginationDTO } from '../../common/dto/pagination.dto';
 import { CreateFileDTO } from './create-file.dto';
 import { Types } from 'mongoose';
 
@@ -9,5 +9,5 @@ export class FilterFileDTO extends PartialType(CreateFileDTO) {
 }
 
 export class QueryFileDTO extends IntersectionType(
-  PaginationDto,
+  PaginationDTO,
   FilterFileDTO) { }

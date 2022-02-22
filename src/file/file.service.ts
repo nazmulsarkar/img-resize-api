@@ -1,3 +1,5 @@
+import { UploadFileDTO } from './../storage/dto/upload-file.dto';
+import { QueryResponse } from '../common/dto/query-response.dto';
 
 import {
   BadRequestException,
@@ -15,6 +17,8 @@ import { FilterFileDTO, QueryFileDTO } from './dto/filter-file.dto';
 import { File } from '../entities/file.entity';
 import { FileType } from '../common/enums/file-type.enum';
 import { CreateFileDTO } from './dto/create-file.dto';
+import { extname } from 'path';
+import { CommandResponse } from '../common/dto/command-response.dto';
 
 @Injectable()
 export class FileService {
@@ -108,11 +112,47 @@ export class FileService {
     }
   }
 
-  async uploadFiles(files: any) {
-    return files;
+  async uploadFiles(files: Array<Express.Multer.File>) {
+    let createdFiles: any;
+    const response: CommandResponse = new CommandResponse()
+
+    const filesToUlpoad: UploadFileDTO[] = files.map((file) => {
+      const ext = extname(file.originalname);
+      const fileName = file.originalname.replace(ext, '').replace(/[^A-Z0-9]+/gi, '-') + ext;
+      const uploadDTO: UploadFileDTO = { fileName, file: file.buffer };
+      return uploadDTO;
+    });
+
+    try {
+      const uploadedFiles = await this.storageService.uploadMultipleFile(
+        filesToUlpoad,
+      );
+
+      if (uploadedFiles) {
+        const createFiles = uploadedFiles.map((u, i) => {
+          const newFile: Partial<File> = {
+            fileKey: u.Key,
+            fileName: filesToUlpoad[i].fileName,
+            fileUrl: this.s3BucketBaseUrl + '/' + u.Key,
+          };
+          return newFile;
+        });
+
+        createdFiles = await this.fileModel.insertMany(createFiles);
+      }
+
+
+      response.success = createdFiles ? true : false;
+      const message = createdFiles ? `Success: Total ${filesToUlpoad.length} uploaded successfully!` : `Error: Upload has error, please try later!`
+      response.message.push(message);
+
+      return response;
+    } catch (err) { throw new BadRequestException(err.message) }
   }
 
-  async findAllFiles(queryParams: QueryFileDTO): Promise<File[]> {
+  async findAllFiles(queryParams: QueryFileDTO): Promise<QueryResponse<File>> {
+    const response = new QueryResponse<File>();
+
     const { pageNumber, pageSize, ...rest } = queryParams;
     const filterQry = rest || {};
     const filteredQuery = this.buildQuery(filterQry);
@@ -127,12 +167,18 @@ export class FileService {
     });
 
     try {
+      response.totalCount = await this.fileModel.countDocuments({
+        ...filterQry,
+      });
+
       const files = await this.fileModel
         .find({ ...filteredQuery })
         .skip(page)
         .limit(size)
         .exec();
-      return files || [];
+      response.data = files || [];
+      response.success = files ? true : false;
+      return response;
     } catch (err) {
       throw new InternalServerErrorException(`${err.message}`);
     }

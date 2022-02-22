@@ -1,3 +1,4 @@
+import { FilesController } from './files.controller';
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { StorageModule } from '../storage/storage.module';
@@ -9,6 +10,7 @@ import { FileService } from './file.service';
     MongooseModule.forFeature([{ name: File.name, schema: FileSchema }]),
     StorageModule,
   ],
-  providers: [FileService]
+  providers: [FileService],
+  controllers: [FilesController]
 })
 export class FileModule { }

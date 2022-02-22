@@ -9,6 +9,7 @@ import {
   Delete,
   Query,
   UploadedFiles,
+  HttpCode,
 } from '@nestjs/common';
 import { Types } from 'mongoose';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
@@ -22,6 +23,11 @@ const maxFileSize = 5000000;
 @Controller('files')
 export class FilesController {
   constructor(private fileService: FileService) { }
+
+  @Get()
+  async findAllFiles(@Query() queryParams: QueryFileDTO) {
+    return this.fileService.findAllFiles(queryParams);
+  }
 
   @Get(':id')
   async findOne(@Param('id') id: Types.ObjectId) {
@@ -41,12 +47,13 @@ export class FilesController {
     );
   }
 
-  @Post('uploads')
+  @Post('upload-files')
+  @HttpCode(200)
   @UseInterceptors(FilesInterceptor('files', maxFileCount, { limits: { fileSize: maxFileSize } }))
-  async addSecureFiles(
+  async uploadFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    return await this.fileService.uploadFiles(files);
+    return this.fileService.uploadFiles(files);
   }
 
   @Post('secured/:fileKey')
@@ -54,11 +61,6 @@ export class FilesController {
     @Param('fileKey') fileKey: string,
   ) {
     return await this.fileService.findOne({ fileKey });
-  }
-
-  @Get()
-  async findAllFiles(@Query() queryParams: QueryFileDTO) {
-    return await this.fileService.findAllFiles(queryParams);
   }
 
   @Delete(':id')
