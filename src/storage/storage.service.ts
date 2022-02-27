@@ -33,6 +33,7 @@ export class StorageService {
         Bucket: this.bucket,
         Body: dataBuffer,
         Key: `${uuid()}-${fileName}`,
+        // Tagging='Key1=Value1',
       })
       .promise();
     return uploadResult;
@@ -45,6 +46,7 @@ export class StorageService {
           Bucket: this.bucket,
           Key: `${uuid()}-${item.fileName}`,
           Body: item.file,
+          // Tagging='Key1=Value1',
         };
         return this.s3.upload(params).promise();
       }),
