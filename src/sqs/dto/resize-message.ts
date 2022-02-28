@@ -1,5 +1,11 @@
 export interface IResizeMessage {
   fileKey: string;
-  fileWidth: string;
-  fileHeight: string;
+  fileWidth: number;
+  fileHeight: number;
+}
+
+export class ResizeMessage implements IResizeMessage {
+  fileKey: string;
+  fileWidth = 200;
+  fileHeight = 200;
 }

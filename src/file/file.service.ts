@@ -1,3 +1,5 @@
+import { SqsService } from './../sqs/sqs.service';
+import { IResizeMessage } from './../sqs/dto/resize-message';
 import { UploadFileDTO } from './../storage/dto/upload-file.dto';
 import { QueryResponse } from '../common/dto/query-response.dto';
 
@@ -29,6 +31,7 @@ export class FileService {
     @InjectModel('File') private fileModel: Model<File>,
     private storageService: StorageService,
     private readonly configService: ConfigService,
+    private readonly sqsService: SqsService,
   ) {
     this.s3BucketBaseUrl = this.configService.get('PROFILE_IMAGE_BASE_URL');
   }
@@ -139,6 +142,18 @@ export class FileService {
         });
 
         createdFiles = await this.fileModel.insertMany(createFiles);
+
+        if (createFiles) {
+          const sqsQueueParams: IResizeMessage[] = createFiles.map(f => {
+            return {
+              fileKey: f.fileKey,
+              fileWidth: 200,
+              fileHeight: 200,
+            }
+          });
+
+          this.sqsService.sendToMultipleQueue(sqsQueueParams)
+        }
       }
 
 
