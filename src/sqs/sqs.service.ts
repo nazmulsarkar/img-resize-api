@@ -1,6 +1,7 @@
 import { ConfigService } from '@nestjs/config';
 import { Injectable } from '@nestjs/common';
 import { SQS } from 'aws-sdk';
+import { IResizeMessage } from './dto/resize-message';
 
 @Injectable()
 export class SqsService {
@@ -22,15 +23,12 @@ export class SqsService {
     this.queueUrl = `https://sqs.us-east-1.amazonaws.com/${this.accountId}/${this.queueName}`
   }
 
-  async sendResizeQueue() {
+  async sendToQueue(message: IResizeMessage) {
 
     // Create SQS service client
     // Setup the sendMessage parameter object
     const params = {
-      MessageBody: JSON.stringify({
-        order_id: 1234,
-        date: (new Date()).toISOString()
-      }),
+      MessageBody: JSON.stringify(message),
       QueueUrl: this.queueUrl
     };
 
@@ -41,5 +39,14 @@ export class SqsService {
         console.log("Successfully added message", data.MessageId);
       }
     });
+  }
+
+  async sendToMultipleQueue(messages: IResizeMessage[]) {
+    // Iterate and send to queue
+    if (messages.length > 0) {
+      for (let i = 0; i < messages.length; i++) {
+        this.sendToQueue(messages[i]);
+      }
+    }
   }
 }
